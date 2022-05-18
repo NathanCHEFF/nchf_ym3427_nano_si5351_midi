@@ -36,12 +36,17 @@ but if you dont have osciloscope - try set this frequency on 440 Hz and and comp
 or just compile and use it)!
 
 YM3427 pinout:
+
 5-6v  audio    ?5v sr_clock nc nc reset sr_clock
+
 16    15       14  13       12 11 10    9
+
 -------------------------------------------
 |                                         |
 |                  YM3427                 |
 |*                                        |
 -------------------------------------------
+
 1     2        3   4        5  6  7     8
+
 clock sr_data  ?5v gnd      nc nc ?5v   gnd
