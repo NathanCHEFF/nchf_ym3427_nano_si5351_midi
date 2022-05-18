@@ -1,4 +1,4 @@
-PSS-80
+PSS-80( and 100)
 YM3427 pinout:
 5-6v  audio    ?5v sr_clock nc nc reset sr_clock
 16    15       14  13       12 11 10    9
@@ -98,3 +98,8 @@ send note on
 chan - 8 : OOOONNNN ;O=Octave, N=note
 8-13;chan : 192/193/200/201/225;voice + 48
 ;------------
+
+midi note on
+90 41 7F 
+midi note off
+90 41 00 
