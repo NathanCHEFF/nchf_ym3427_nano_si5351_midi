@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+
+</head>
+<body>
+
+<br>
+<select name="registres" select=none>
+  <option value="8">параметры канала</option>
+  <option value="14">Instrument</option>
+  <option value="14">ефекты/LFO</option>
+  <option value="20">ADSR огибающая</option>
+  <option value="5">громкость и шим</option>
+</select>
+
+<select name="registres2">
+  <option value="1">параметры канала</option>
+  <option value="2">Instrument</option>
+  <option value="3">ефекты/LFO</option>
+  <option value="4">ADSR огибающая</option>
+  <option value="5">громкость и шим</option>
+</select>
+
+<pre>
+Формат посылки в виде *address, *value
+
+регистры с 0 - 7    параметры канала
+1OOO xxxx;4-6 = Octave
+1xxx NNNN; 0-3 = Note+(Note/3)+1
+
+регистры с 8 - 13   Instrument
+  1Rxx xxxx;6 = Retrigger
+  1xSx xxxx;5 = Staccato
+  1xxE xxxx;4 = Envelope sustain
+  1xxx Vxxx;3 = Vibrato
+  1xxx xDDx;2-1 = Detune
+  1xxx xxxE;0 = Volume/Emphasis
+
+регистры с 14 - 16 ?
+
+
+регистры с 16 - 21 
+  ефекты/LFO (низкочастотный осциль)
+  1Txx xxxx;6 = Tremolo
+  1xVV xxxx;4-5 = Vib depth
+  1xxx Nxxx;3 = Noise gate
+  1xxx xSSS;0-2 = Speed (bits out of order)
+        021 (correct order)
+      I (inverted)
+
+registers 22-23 ?      
+
+регистры с 24 - 29  ADSR огибающая
+  1??x xxxx;5-6 same as brightness?
+  1xxr xxxx;4 = Reverb (instead of release)
+  1xxx Sxxx;3 = Sustain
+  1xxx xRxx;2 = Release
+  1xxx xxDx;1 = Decay
+  1xxx xxxA;0 = Attack
+
+регистры с 30 - 31  рандомная запись ничего не генерировала
+
+регистры с 32 - 37  громкость и шим
+  1Exx xxxx; 6 = effect PWM
+  1xBB Bxxx; 3-5 = brightness
+  1xxx xVVV; 0-2 = volume
+  1111 0VVV; value 240-247 = cymbal noise
+  1111 1VVV; value 240-247 = white noise
+  
+регистры с 38 - 41  не определены
+
+
+send_packet(byte adr, byte data)
+адрес регистра и данные для заполнения
+
+</pre>
+</body>
+</html>
