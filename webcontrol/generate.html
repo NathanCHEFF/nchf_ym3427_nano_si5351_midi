@@ -5,76 +5,114 @@
 
 </head>
 <body>
+<script>
+  let regS = {'0'  : 7,     // 8 reg
+              '8'  : 13,    //
+              '14' : 15,    // 
+              '16' : 21,    //
+              '22' : 23,    //
+              '24' : 29,    //
+              '30' : 31,    //
+              '32' : 37,    //
+              '38' : 41     //
+              };
+              
+  let regN = {'0'  : 'param',   // 
+              '8'  : 'instr',   //
+              '14' : 'none',    //
+              '16' : 'effct',   //
+              '22' : 'none',    //
+              '24' : 'adsre',   //
+              '30' : 'none',    //
+              '32' : 'vpwm',    //
+              '38' : 'none'     //
+              };
+                       
+  const param_s = [ '1', 'octave', 'octave', 'octave', 'note', 'note', 'note', 'note' ];
+  const instr_s = [ '1', 'retrigger', 'Staccato', 'Envelope sustain', 'Detune', 'Detune', 'Volume/Emphasis' ];  
+  const effec_s = [ '1', 'Tremolo', 'vibrato', 'vibrato', 'Noise gate', 'Speed', 'Speed', 'Speed' ];
+  const ADSRe_s = [ '1', 'brightness', 'brightness', 'Reverb', 'Sustain', 'Release', 'Decay', 'Attack' ];
+  const volum_s = [ '1', 'effect PWM', 'brightness', 'brightness', 'brightness', 'volume', 'volume', 'volume' ];
+  
+  const param_h = `регистры с 0 - 7    параметры канала
+                      1OOO xxxx; 4-6 = Octave 
+                      NNNN; 0-3 = Note+(Note/3)+1`;
+                      
+  const instr_h = `регистры с 8 - 13   Instrument
+        1Rxx xxxx;6 = Retrigger
+        1xSx xxxx;5 = Staccato
+        1xxE xxxx;4 = Envelope sustain
+        1xxx Vxxx;3 = Vibrato
+        1xxx xDDx;2-1 = Detune
+        1xxx xxxE;0 = Volume/Emphasis`;
+                    
+  const effec_h = `регистры с 16 - 21 
+        ефекты/LFO (низкочастотный осциль)
+        1Txx xxxx;6 = Tremolo
+        1xVV xxxx;4-5 = Vib depth
+        1xxx Nxxx;3 = Noise gate
+        1xxx xSSS;0-2 = Speed (bits out of order)
+              021 (correct order)
+            I (inverted)`;
+                        
+  const ADSRe_h = `регистры с 24 - 29  ADSR огибающая
+        1??x xxxx;5-6 same as brightness?
+        1xxr xxxx;4 = Reverb (instead of release)
+        1xxx Sxxx;3 = Sustain
+        1xxx xRxx;2 = Release
+        1xxx xxDx;1 = Decay
+        1xxx xxxA;0 = Attack`;
+                    
+  const volum_h = `регистры с 32 - 37  громкость и шим
+        1Exx xxxx; 6 = effect PWM
+        1xBB Bxxx; 3-5 = brightness
+        1xxx xVVV; 0-2 = volume
+        1111 0VVV; value 240-247 = cymbal noise
+        1111 1VVV; value 240-247 = white noise`;
+                    
+  const list_help =  { '0' : param_h, '8' : instr_h, '16' : effec_h, '24': ADSRe_h, '32' : volum_h };
+    
+  const list_param = { '0' : param_s, '8' : instr_s, '16' : effec_s, '24' : ADSRe_s, '32' : volum_s };
+
+function regenerate(){       
+  let sel1 = document.getElementById("sel1");
+
+  
+  document.getElementById('helper').innerHTML = "";
+  document.getElementById('helper').innerHTML = list_help[sel1.value]
+  
+  let sel2 = document.getElementById("sel2");
+  sel2.innerHTML = "";
+  
+  for (var i = Number(sel1.value); i <= regS[sel1.value]; i++) {
+    var option = document.createElement("option");
+    option.value = list_param[sel1.value][i];
+    option.text = i
+    sel2.appendChild(option);
+  }
+
+}
+
+
+</script>
 
 <br>
-<select name="registres" select=none>
-  <option value="8">параметры канала</option>
-  <option value="14">Instrument</option>
-  <option value="14">ефекты/LFO</option>
-  <option value="20">ADSR огибающая</option>
-  <option value="5">громкость и шим</option>
+<select id="sel1" name="registres" onchange="regenerate()">
+  <option value='false'>Выберите регистр</option>
+  <option value="0"  >параметры канала</option>
+  <option value="8"  >Instrument</option>
+  <option value="16" >ефекты/LFO</option>
+  <option value="24" >ADSR огибающая</option>
+  <option value="32" >громкость и шим</option>
 </select>
 
-<select name="registres2">
-  <option value="1">параметры канала</option>
-  <option value="2">Instrument</option>
-  <option value="3">ефекты/LFO</option>
-  <option value="4">ADSR огибающая</option>
-  <option value="5">громкость и шим</option>
+<select id="sel2" onchange="">
+  <option >Выберите номер канала </option>
 </select>
 
 <pre>
-Формат посылки в виде *address, *value
-
-регистры с 0 - 7    параметры канала
-1OOO xxxx;4-6 = Octave
-1xxx NNNN; 0-3 = Note+(Note/3)+1
-
-регистры с 8 - 13   Instrument
-  1Rxx xxxx;6 = Retrigger
-  1xSx xxxx;5 = Staccato
-  1xxE xxxx;4 = Envelope sustain
-  1xxx Vxxx;3 = Vibrato
-  1xxx xDDx;2-1 = Detune
-  1xxx xxxE;0 = Volume/Emphasis
-
-регистры с 14 - 16 ?
-
-
-регистры с 16 - 21 
-  ефекты/LFO (низкочастотный осциль)
-  1Txx xxxx;6 = Tremolo
-  1xVV xxxx;4-5 = Vib depth
-  1xxx Nxxx;3 = Noise gate
-  1xxx xSSS;0-2 = Speed (bits out of order)
-        021 (correct order)
-      I (inverted)
-
-registers 22-23 ?      
-
-регистры с 24 - 29  ADSR огибающая
-  1??x xxxx;5-6 same as brightness?
-  1xxr xxxx;4 = Reverb (instead of release)
-  1xxx Sxxx;3 = Sustain
-  1xxx xRxx;2 = Release
-  1xxx xxDx;1 = Decay
-  1xxx xxxA;0 = Attack
-
-регистры с 30 - 31  рандомная запись ничего не генерировала
-
-регистры с 32 - 37  громкость и шим
-  1Exx xxxx; 6 = effect PWM
-  1xBB Bxxx; 3-5 = brightness
-  1xxx xVVV; 0-2 = volume
-  1111 0VVV; value 240-247 = cymbal noise
-  1111 1VVV; value 240-247 = white noise
-  
-регистры с 38 - 41  не определены
-
-
-send_packet(byte adr, byte data)
-адрес регистра и данные для заполнения
-
+  <div id='helper'>
+  </div>
 </pre>
 </body>
 </html>
