@@ -2,60 +2,127 @@
 <html>
 <head>
   <meta charset="utf-8">
-
 </head>
-<body>
-  <input type="button" onclick='openSerialPort()' value='taapme'></input>
-  <input type="button" onclick='send()' value='taapme2'></input>
-    <input type="button" onclick='send2()' value='taapme3'></input>
-  <script>
-  if ("serial" in navigator) {
-    //console.log("браузер поддерживает com порт")
+<script>
+;var YM3427 = ( function(){
+  function YM3427(){
+    if (YM3427.instance_) return YM3427.instance_; // sngltn
+    this.channels = [ 1, 2, 3, 4, 5, 6 ]; // numb of chanel(voices)
+    this.busy     = [ 0, 0, 0, 0, 0, 0 ]; // ident of busy
+    this.registres = [8,
+                      16,
+                      24,
+                      32
+                      ];
+    
   }
+  YM3427.instance_ = this;
 
-let port= null;
-let portTextWrite = null
+  return YM3427;
+}).call(this);
 
-let myVend = [{usbProductId: 29987, usbVendorId: 6790},]
+;var Serial = ( function(){
 
-  async function openSerialPort(){
-   const ports = await  navigator.serial.getPorts()
-   console.log(ports)
-  port = ports[0]
+  this.listVendor = null;
+  this.port = null;
   
-    //const port = await navigator.serial.requestPort({ myVend });
+  function Serial(baud, bits=8, sBits=1,parity="none", bufSize=255, fc="none" ){
+    if ("serial" in navigator) {
+      console.log("браузер поддерживает com порт")
+    }
+
+    //if (Serial.instance_) return Serial.instance_;
+    //Serial.instance_ = this;
+
+    this.baudRate = baud;
+    this.dataBits = bits;
+    this.stopBits = sBits;
+    this.parity   = parity,
+    this.bufferSize = bufSize,
+    this.flowControl = fc
     
-    await port.open({ 
-      baudRate :115200,
-      dataBits: 8,
-      stopBits: 1,
-      parity: "none",
-      bufferSize: 255,
-      flowControl: "none",
+  }
+  
+    navigator.serial.addEventListener("connect", (event) => {
+      // TODO: Automatically open event.target or warn user a port is available.
     });
-    
-    console.log(port.getInfo())
+
+    navigator.serial.addEventListener("disconnect", (event) => {
+      // TODO: Remove |event.target| from the UI.
+      // If the serial port was opened, a stream error would be observed as well.
+    });
+  
+  Serial.setVendorList = function(list){
+    Serial.listVendor = list;
+  }
+  
+  Serial.open = async function(){ // call with await!
+    Serial.port.open({ 
+      baudRate :Serial.baudRate,
+      dataBits: Serial.dataBits,
+      stopBits: Serial.stopBits,
+      parity: Serial.parity ,
+      bufferSize: Serial.bufferSize,
+      flowControl: Serial.flowControl;
+    });
+  }
+  Serial.close = async function(){ // call with await!
+    Serial.port.close();
+  }
+  Serial.getInfo = function(){
+    return Serial.port.getInfo()
+  }
+  
+  Serial.write = function(data){ // call with await!
     let textEncoder = new TextEncoderStream();
     let writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
     let writer = textEncoder.writable.getWriter();
-    portTextWrite = writer
+    writer.write(data)
   }
   
-  async function send(){
-    if(port == null){return null}
-    await portTextWrite.write(144);
-    await portTextWrite.write(65);
-    await portTextWrite.write(177);
-    //console.log(`sent ${cmd} to serial board`)
-}
+  Serial.read = function(){ // call with await!
+    // WARNING! Copypasted from https://web.dev/i18n/ru/serial/
+  
+   const reader = Serial.port.readable.getReader();
 
-  async function send2(){
-    if(port == null){return null}
-    await portTextWrite.write(144);
-    await portTextWrite.write(65);
-    await portTextWrite.write(00);
-    //console.log(`sent ${cmd} to serial board`)
-}
-  </script>
+    try {
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) {
+          // Allow the serial port to be closed later.
+          reader.releaseLock();
+          break;
+        }
+        if (value) {
+          console.log(value);
+        }
+      }
+    } catch (error) {
+      // TODO: Handle non-fatal read error.
+    }
+  }
+  
+  
+  
+  return Serial;
+  
+})();//.call(this)
+
+;var controlChip = ( function(){
+  function controlChip(){
+
+    if (controlChip.instance_) {
+      return controlChip.instance_;
+    }
+  }
+  controlChip.instance_ = this;
+
+  return controlChip;
+}).call(this);
+</script>
+<body>
+  <input type="button" onclick="new Serial(115200)" value='taapme'></input>
+<script>
+</script>
 </body>
 </html>
