@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+</head>
+<script src="ym3427.js" ></script>
+<body>
+  <input type="button" onclick="start()" value='taapme'></input>
+<script>
+  let yamaha = new YM3427();
+  console.log(yamaha)
+  async function start(){
+    await yamaha.connect()
+    console.log(yamaha)
+  }
+</script>
+</body>
+</html>
